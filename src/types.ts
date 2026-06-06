@@ -33,7 +33,6 @@ export interface FilamentData {
 
 export interface FilterState {
   brands: string[];
-  filamentTypes: string[];
   baseMaterials: string[];
   fiberBlends: string[];
   searchText: string;
