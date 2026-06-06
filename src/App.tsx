@@ -16,7 +16,6 @@ const App: React.FC = () => {
   
   const [filters, setFilters] = useState<FilterState>({
     brands: [],
-    filamentTypes: [],
     baseMaterials: [],
     fiberBlends: [],
     searchText: '',
@@ -46,11 +45,6 @@ const App: React.FC = () => {
     return data.filter(item => {
       // Brand filter
       if (filters.brands.length > 0 && item.Brand && !filters.brands.includes(item.Brand)) {
-        return false;
-      }
-
-      // Filament type filter
-      if (filters.filamentTypes.length > 0 && item['Filament type'] && !filters.filamentTypes.includes(item['Filament type'])) {
         return false;
       }
 
@@ -158,7 +152,6 @@ const App: React.FC = () => {
       // Reset filters when new data is loaded
       setFilters({
         brands: [],
-        filamentTypes: [],
         baseMaterials: [],
         fiberBlends: [],
         searchText: '',
@@ -195,7 +188,6 @@ const App: React.FC = () => {
     // Reset all filters
     setFilters({
       brands: [],
-      filamentTypes: [],
       baseMaterials: [],
       fiberBlends: [],
       searchText: '',

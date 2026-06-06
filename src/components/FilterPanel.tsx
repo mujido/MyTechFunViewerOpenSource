@@ -101,6 +101,18 @@ const DualModeNumericInput: React.FC<{
   );
 };
 
+const fiberNames: Record<string, string> = {
+  cf: 'Carbon Fiber',
+  gf: 'Glass Fiber',
+  gr: 'Graphene',
+  kf: 'Kynar Fiber',
+};
+
+const fiberDisplayName = (fiber: string) => {
+  const full = fiberNames[fiber.toLowerCase()];
+  return full ? `${fiber} (${full})` : fiber;
+};
+
 const FilterPanel: React.FC<FilterPanelProps> = ({
   data,
   filters,
@@ -111,9 +123,8 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   const uniqueValues = React.useMemo(() => {
     return {
       brands: [...new Set(data.map(d => d.Brand).filter(Boolean))].sort(),
-      filamentTypes: [...new Set(data.map(d => d['Filament type']).filter(Boolean))].sort(),
-      baseMaterials: [...new Set(data.map(d => d.Base).filter(Boolean))].sort(),
-      fiberBlends: [...new Set(data.map(d => d.Fibers).filter(Boolean))].sort()
+      baseMaterials: [...new Set(data.map(d => d.Base).filter((v): v is string => !!v))].sort(),
+      fiberBlends: [...new Set(data.map(d => d.Fibers).filter((v): v is string => !!v))].sort()
     };
   }, [data]);
 
@@ -194,7 +205,6 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   const clearAllFilters = () => {
     onFiltersChange({
       brands: [],
-      filamentTypes: [],
       baseMaterials: [],
       fiberBlends: [],
       searchText: '',
@@ -276,18 +286,37 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Filament Types ({filters.filamentTypes.length} selected)
+            Base ({filters.baseMaterials.length} selected)
           </label>
           <div className="max-h-32 overflow-y-auto border border-gray-200 rounded-md">
-            {uniqueValues.filamentTypes.map(type => (
-              <label key={type} className="flex items-center px-3 py-2 hover:bg-gray-50">
+            {uniqueValues.baseMaterials.map(base => (
+              <label key={base} className="flex items-center px-3 py-2 hover:bg-gray-50">
                 <input
                   type="checkbox"
-                  checked={filters.filamentTypes.includes(type)}
-                  onChange={() => handleMultiSelectChange('filamentTypes', type)}
+                  checked={filters.baseMaterials.includes(base)}
+                  onChange={() => handleMultiSelectChange('baseMaterials', base)}
                   className="mr-2"
                 />
-                <span className="text-sm">{type}</span>
+                <span className="text-sm">{base}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Fibers ({filters.fiberBlends.length} selected)
+          </label>
+          <div className="max-h-32 overflow-y-auto border border-gray-200 rounded-md">
+            {uniqueValues.fiberBlends.map(fiber => (
+              <label key={fiber} className="flex items-center px-3 py-2 hover:bg-gray-50">
+                <input
+                  type="checkbox"
+                  checked={filters.fiberBlends.includes(fiber)}
+                  onChange={() => handleMultiSelectChange('fiberBlends', fiber)}
+                  className="mr-2"
+                />
+                <span className="text-sm">{fiberDisplayName(fiber)}</span>
               </label>
             ))}
           </div>
