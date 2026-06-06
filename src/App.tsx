@@ -29,6 +29,13 @@ const App: React.FC = () => {
     type: 'scatter'
   });
 
+  const [lockedColumns, setLockedColumns] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('mytechfun-locked-columns');
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
+
   // Load persisted data on mount
   useEffect(() => {
     const savedData = localStorage.getItem('mytechfun-filament-data');
@@ -116,6 +123,10 @@ const App: React.FC = () => {
 
     return columns;
   }, [data]);
+
+  useEffect(() => {
+    localStorage.setItem('mytechfun-locked-columns', JSON.stringify(lockedColumns));
+  }, [lockedColumns]);
 
   // Set default chart axes when data changes
   useEffect(() => {
@@ -214,6 +225,9 @@ const App: React.FC = () => {
 
     // Clear any errors
     setError(null);
+
+    setLockedColumns([]);
+    localStorage.removeItem('mytechfun-locked-columns');
   };
 
   const handleChartAxisChange = (axis: 'xAxis' | 'yAxis', value: string) => {
@@ -439,7 +453,7 @@ const App: React.FC = () => {
                       </div>
                     </div>
                   }>
-                    <DataTable data={filteredData} />
+                    <DataTable data={filteredData} lockedColumns={lockedColumns} />
                   </ErrorBoundary>
                 ) : (
                   <ErrorBoundary fallback={

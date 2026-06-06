@@ -1,8 +1,9 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useLayoutEffect } from 'react';
 import { FilamentData } from '../types';
 
 interface DataTableProps {
   data: FilamentData[];
+  lockedColumns: string[];
 }
 
 type SortConfig = {
@@ -10,9 +11,11 @@ type SortConfig = {
   direction: 'asc' | 'desc';
 } | null;
 
-const DataTable: React.FC<DataTableProps> = ({ data }) => {
+const DataTable: React.FC<DataTableProps> = ({ data, lockedColumns }) => {
   const [sortConfig, setSortConfig] = useState<SortConfig>(null);
   const [selectedRowIndex, setSelectedRowIndex] = useState<number | null>(null);
+  const headerCellRefs = useRef<(HTMLTableCellElement | null)[]>([]);
+  const [stickyOffsets, setStickyOffsets] = useState<number[]>([]);
 
   const sortedData = useMemo(() => {
     if (!sortConfig) return data;
@@ -180,23 +183,64 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
 
   const columns = Object.keys(data[0]);
 
+  // Locked columns first (in original order), then unlocked columns (in original order)
+  const displayColumns = useMemo(() => [
+    ...lockedColumns.filter(c => columns.includes(c)),
+    ...columns.filter(c => !lockedColumns.includes(c)),
+  ], [columns, lockedColumns]);
+
+  const lockedCount = lockedColumns.filter(c => columns.includes(c)).length;
+
+  useLayoutEffect(() => {
+    const offsets: number[] = [];
+    let cumulative = 0;
+    for (let i = 0; i < lockedCount; i++) {
+      offsets.push(cumulative);
+      const el = headerCellRefs.current[i];
+      if (el) cumulative += el.offsetWidth;
+    }
+    setStickyOffsets(offsets);
+  }, [data, lockedCount]);
+
+  const getStickyHeaderStyle = (colIndex: number): React.CSSProperties | undefined => {
+    if (colIndex >= lockedCount) return undefined;
+    return {
+      position: 'sticky',
+      left: stickyOffsets[colIndex] ?? 0,
+      zIndex: 20,
+      background: 'linear-gradient(to right, #EFF6FF, #EEF2FF)',
+      ...(colIndex === lockedCount - 1 && { boxShadow: '4px 0 6px -2px rgba(0,0,0,0.15)' }),
+    };
+  };
+
+  const getStickyBodyStyle = (colIndex: number, rowSelected: boolean): React.CSSProperties | undefined => {
+    if (colIndex >= lockedCount) return undefined;
+    return {
+      position: 'sticky',
+      left: stickyOffsets[colIndex] ?? 0,
+      zIndex: 1,
+      backgroundColor: rowSelected ? '#EFF6FF' : 'white',
+      ...(colIndex === lockedCount - 1 && { boxShadow: '4px 0 6px -2px rgba(0,0,0,0.15)' }),
+    };
+  };
+
   return (
     <div className="h-full flex flex-col">
       <div className="flex-1 min-h-0 min-w-0">
         <div className="h-full w-full min-w-0 overflow-x-auto overflow-y-auto">
-          {/* Mobile responsive wrapper */}
           <div className="min-w-full lg:min-w-max">
             <table
               className="min-w-full divide-y divide-gray-200"
               role="table"
               aria-label="Filament data table"
-              style={{ minWidth: `${columns.length * 120}px` }}
+              style={{ minWidth: `${displayColumns.length * 120}px` }}
             >
               <thead className="table-header sticky top-0 z-10">
                 <tr role="row">
-                  {columns.map(column => (
+                  {displayColumns.map((column, colIndex) => (
                     <th
                       key={column}
+                      ref={(el) => { headerCellRefs.current[colIndex] = el; }}
                       onClick={() => handleSort(column)}
                       className="table-header-cell focus-visible"
                       role="columnheader"
@@ -208,6 +252,7 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
                           : 'none'
                       }
                       aria-label={`Sort by ${column}`}
+                      style={getStickyHeaderStyle(colIndex)}
                     >
                       <div className="flex items-center justify-between min-w-0">
                         <span className="truncate mr-2" title={column}>{column}</span>
@@ -232,12 +277,13 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
                       ${selectedRowIndex === index ? 'table-row-selected' : ''}
                     `}
                   >
-                    {columns.map((column, colIndex) => (
+                    {displayColumns.map((column, colIndex) => (
                       <td
                         key={column}
                         className="table-cell"
                         role="gridcell"
                         aria-describedby={`col-${colIndex}-desc`}
+                        style={getStickyBodyStyle(colIndex, selectedRowIndex === index)}
                       >
                         <div className="min-w-0">
                           {formatValue(row[column], column)}
@@ -251,16 +297,16 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
           </div>
         </div>
       </div>
-      
+
       {/* Screen reader announcements */}
       <div className="sr-only" aria-live="polite" aria-atomic="true">
         {selectedRowIndex !== null && sortedData[selectedRowIndex] && (
           `Selected row ${selectedRowIndex + 1}: ${sortedData[selectedRowIndex].Brand} ${sortedData[selectedRowIndex]['Filament type']}`
         )}
       </div>
-      
+
       {/* Column descriptions for screen readers */}
-      {columns.map((column, index) => (
+      {displayColumns.map((column, index) => (
         <div key={`desc-${column}`} id={`col-${index}-desc`} className="sr-only">
           {column} column data
         </div>
