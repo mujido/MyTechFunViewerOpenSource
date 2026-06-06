@@ -4,6 +4,7 @@ import FilterPanel from './components/FilterPanel';
 import DataTable from './components/DataTable';
 import Charts from './components/Charts';
 import ErrorBoundary from './components/ErrorBoundary';
+import { TableSettingsDialog, RadarSettingsDialog } from './components/SettingsDialog';
 import { FilamentData, FilterState, ChartConfig } from './types';
 import { parseExcelFile, validateExcelData } from './utils/excel';
 
@@ -32,9 +33,19 @@ const App: React.FC = () => {
   const [lockedColumns, setLockedColumns] = useState<string[]>(() => {
     try {
       const saved = localStorage.getItem('mytechfun-locked-columns');
-      return saved ? JSON.parse(saved) : [];
-    } catch { return []; }
+      if (!saved) return [];
+      const parsed = JSON.parse(saved);
+      if (!Array.isArray(parsed)) throw new Error();
+      return parsed;
+    } catch {
+      localStorage.removeItem('mytechfun-locked-columns');
+      return [];
+    }
   });
+  const [tableSettingsOpen, setTableSettingsOpen] = useState(false);
+  const [radarSettingsOpen, setRadarSettingsOpen] = useState(false);
+
+  const columns = useMemo(() => data.length > 0 ? Object.keys(data[0]) : [], [data]);
 
   // Load persisted data on mount
   useEffect(() => {
@@ -127,20 +138,26 @@ const App: React.FC = () => {
   const [radarColumns, setRadarColumns] = useState<string[]>(() => {
     try {
       const saved = localStorage.getItem('mytechfun-radar-columns');
-      return saved ? JSON.parse(saved) : [];
-    } catch { return []; }
+      if (!saved) return [];
+      const parsed = JSON.parse(saved);
+      if (!Array.isArray(parsed)) throw new Error();
+      return parsed;
+    } catch {
+      localStorage.removeItem('mytechfun-radar-columns');
+      return [];
+    }
   });
   const [radarWeights, setRadarWeights] = useState<Record<string, number>>(() => {
     try {
       const saved = localStorage.getItem('mytechfun-radar-weights');
-      return saved ? JSON.parse(saved) : {};
-    } catch { return {}; }
-  });
-  const [radarTopN, setRadarTopN] = useState<number>(() => {
-    try {
-      const saved = localStorage.getItem('mytechfun-radar-top-n');
-      return saved ? JSON.parse(saved) : 3;
-    } catch { return 3; }
+      if (!saved) return {};
+      const parsed = JSON.parse(saved);
+      if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) throw new Error();
+      return parsed;
+    } catch {
+      localStorage.removeItem('mytechfun-radar-weights');
+      return {};
+    }
   });
 
   useEffect(() => {
@@ -150,6 +167,10 @@ const App: React.FC = () => {
   }, [numericColumns]);
 
   useEffect(() => {
+    localStorage.setItem('mytechfun-locked-columns', JSON.stringify(lockedColumns));
+  }, [lockedColumns]);
+
+  useEffect(() => {
     localStorage.setItem('mytechfun-radar-columns', JSON.stringify(radarColumns));
   }, [radarColumns]);
 
@@ -157,13 +178,22 @@ const App: React.FC = () => {
     localStorage.setItem('mytechfun-radar-weights', JSON.stringify(radarWeights));
   }, [radarWeights]);
 
+  const [radarTopN, setRadarTopN] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('mytechfun-radar-top-n');
+      if (!saved) return 3;
+      const parsed = JSON.parse(saved);
+      if (typeof parsed !== 'number' || !isFinite(parsed)) throw new Error();
+      return parsed;
+    } catch {
+      localStorage.removeItem('mytechfun-radar-top-n');
+      return 3;
+    }
+  });
+
   useEffect(() => {
     localStorage.setItem('mytechfun-radar-top-n', JSON.stringify(radarTopN));
   }, [radarTopN]);
-
-  useEffect(() => {
-    localStorage.setItem('mytechfun-locked-columns', JSON.stringify(lockedColumns));
-  }, [lockedColumns]);
 
   // Set default chart axes when data changes
   useEffect(() => {
@@ -263,12 +293,8 @@ const App: React.FC = () => {
     // Clear any errors
     setError(null);
 
-    setLockedColumns([]);
-    localStorage.removeItem('mytechfun-locked-columns');
-    setRadarColumns([]);
-    localStorage.removeItem('mytechfun-radar-columns');
-    localStorage.removeItem('mytechfun-radar-weights');
-    setRadarWeights({});
+    setTableSettingsOpen(false);
+    setRadarSettingsOpen(false);
   };
 
   const handleChartAxisChange = (axis: 'xAxis' | 'yAxis', value: string) => {
@@ -343,6 +369,7 @@ const App: React.FC = () => {
                 </svg>
                 Unload Data
               </button>
+
             </div>
           )}
         </div>
@@ -449,6 +476,20 @@ const App: React.FC = () => {
                       </div>
                     )}
 
+                    {chartConfig.type === 'radar' && (
+                      <button
+                        onClick={() => setRadarSettingsOpen(true)}
+                        className="flex items-center space-x-1.5 px-3 py-1 text-sm font-medium text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                        aria-label="Open radar chart settings"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span>Settings</span>
+                      </button>
+                    )}
+
                     {chartConfig.type === 'scatter' && (
                       <>
                         <div className="flex items-center space-x-2">
@@ -481,6 +522,22 @@ const App: React.FC = () => {
                       </>
                     )}
                   </div>
+                </div>
+              )}
+
+              {activeTab === 'table' && (
+                <div className="bg-white border-b px-6 py-3 flex items-center justify-end">
+                  <button
+                    onClick={() => setTableSettingsOpen(true)}
+                    className="flex items-center space-x-1.5 px-3 py-1 text-sm font-medium text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                    aria-label="Open table settings"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span>Settings</span>
+                  </button>
                 </div>
               )}
 
@@ -549,6 +606,22 @@ const App: React.FC = () => {
         )}
         </div>
       </div>
+      <TableSettingsDialog
+        isOpen={tableSettingsOpen}
+        onClose={() => setTableSettingsOpen(false)}
+        columns={columns}
+        lockedColumns={lockedColumns}
+        onLockedColumnsChange={setLockedColumns}
+      />
+      <RadarSettingsDialog
+        isOpen={radarSettingsOpen}
+        onClose={() => setRadarSettingsOpen(false)}
+        numericColumns={numericColumns}
+        radarColumns={radarColumns}
+        onRadarColumnsChange={setRadarColumns}
+        radarWeights={radarWeights}
+        onRadarWeightsChange={setRadarWeights}
+      />
     </ErrorBoundary>
   );
 };
