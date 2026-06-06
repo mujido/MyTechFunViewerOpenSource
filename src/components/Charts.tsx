@@ -6,14 +6,30 @@ import {
 import { FilamentData } from '../types';
 import { calculateLinearRegression, normalizeMinMax } from '../utils/statistics';
 
+const RADAR_COLORS = [
+  '#3B82F6', // blue
+  '#EF4444', // red
+  '#10B981', // emerald
+  '#F59E0B', // amber
+  '#8B5CF6', // violet
+  '#EC4899', // pink
+  '#06B6D4', // cyan
+  '#F97316', // orange
+  '#84CC16', // lime
+  '#6366F1', // indigo
+];
+
 interface ChartsProps {
   data: FilamentData[];
   chartType: 'scatter' | 'bar' | 'radar';
   xAxis?: string;
   yAxis?: string;
+  radarColumns?: string[];
+  radarWeights?: Record<string, number>;
+  radarTopN?: number;
 }
 
-const Charts: React.FC<ChartsProps> = ({ data, chartType, xAxis, yAxis }) => {
+const Charts: React.FC<ChartsProps> = ({ data, chartType, xAxis, yAxis, radarColumns, radarWeights, radarTopN = 3 }) => {
   const numericColumns = React.useMemo(() => {
     if (data.length === 0) return [];
 
@@ -92,18 +108,31 @@ const Charts: React.FC<ChartsProps> = ({ data, chartType, xAxis, yAxis }) => {
   const radarData = React.useMemo(() => {
     if (data.length === 0 || numericColumns.length < 3) return [];
 
+    const keyColumns = (radarColumns && radarColumns.length > 0)
+      ? radarColumns.filter(c => numericColumns.includes(c))
+      : numericColumns.slice(0, 6);
+
+    if (keyColumns.length === 0) return [];
+
+    // Pre-normalize each radar column so the ranking is column-count-agnostic
+    const colNorms = keyColumns.map(col => {
+      const vals = data.map(d => d[col] as number).filter(v => !isNaN(v));
+      return { col, values: vals, normalized: normalizeMinMax(vals) };
+    });
+
+    // Rank by sum of normalized scores across all selected radar columns
     const topFilaments = data
       .slice()
       .sort((a, b) => {
-        const aScore = (a['Tensile (kg)'] as number ?? 0) +
-                      (a['Layer adhesion (kg)'] as number ?? 0);
-        const bScore = (b['Tensile (kg)'] as number ?? 0) +
-                      (b['Layer adhesion (kg)'] as number ?? 0);
-        return bScore - aScore;
+        const score = (row: typeof data[0]) =>
+          colNorms.reduce((sum, { col, values, normalized }) => {
+            const idx = values.indexOf(row[col] as number);
+            const weight = radarWeights?.[col] ?? 1;
+            return sum + (idx >= 0 ? normalized[idx] * weight : 0);
+          }, 0);
+        return score(b) - score(a);
       })
-      .slice(0, 3);
-
-    const keyColumns = numericColumns.slice(0, 6);
+      .slice(0, radarTopN);
 
     // Store filament info for tooltips
     const filamentInfo = topFilaments.map(f => ({
@@ -142,7 +171,7 @@ const Charts: React.FC<ChartsProps> = ({ data, chartType, xAxis, yAxis }) => {
       data: chartData,
       filaments: filamentInfo
     };
-  }, [data, numericColumns]);
+  }, [data, numericColumns, radarColumns, radarWeights, radarTopN]);
 
   const regressionLine = React.useMemo(() => {
     if (scatterData.length < 2) return null;
@@ -301,7 +330,7 @@ const Charts: React.FC<ChartsProps> = ({ data, chartType, xAxis, yAxis }) => {
       return (
         <div className="h-full">
           <div className="mb-4">
-            <h3 className="text-lg font-semibold">Top 3 Filaments Comparison</h3>
+            <h3 className="text-lg font-semibold">Top {radarTopN} Filament{radarTopN !== 1 ? 's' : ''} Comparison</h3>
             <p className="text-sm text-gray-600">Normalized performance metrics (0-100 scale)</p>
             <div className="mt-2 space-y-1">
               {('filaments' in radarData ? radarData.filaments : []).map((filament, index) => (
@@ -309,7 +338,7 @@ const Charts: React.FC<ChartsProps> = ({ data, chartType, xAxis, yAxis }) => {
                   <div
                     className="w-3 h-3 rounded-full mr-2"
                     style={{
-                      backgroundColor: ['#3B82F6', '#EF4444', '#10B981'][index]
+                      backgroundColor: RADAR_COLORS[index % RADAR_COLORS.length]
                     }}
                   />
                   <span className="font-medium">{filament.name}</span>
@@ -329,8 +358,8 @@ const Charts: React.FC<ChartsProps> = ({ data, chartType, xAxis, yAxis }) => {
                   key={index}
                   name={filament.name}
                   dataKey={`filament${index + 1}`}
-                  stroke={['#3B82F6', '#EF4444', '#10B981'][index]}
-                  fill={['#3B82F6', '#EF4444', '#10B981'][index]}
+                  stroke={RADAR_COLORS[index % RADAR_COLORS.length]}
+                  fill={RADAR_COLORS[index % RADAR_COLORS.length]}
                   fillOpacity={0.1}
                 />
               ))}

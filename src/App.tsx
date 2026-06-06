@@ -124,6 +124,43 @@ const App: React.FC = () => {
     return columns;
   }, [data]);
 
+  const [radarColumns, setRadarColumns] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('mytechfun-radar-columns');
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
+  const [radarWeights, setRadarWeights] = useState<Record<string, number>>(() => {
+    try {
+      const saved = localStorage.getItem('mytechfun-radar-weights');
+      return saved ? JSON.parse(saved) : {};
+    } catch { return {}; }
+  });
+  const [radarTopN, setRadarTopN] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('mytechfun-radar-top-n');
+      return saved ? JSON.parse(saved) : 3;
+    } catch { return 3; }
+  });
+
+  useEffect(() => {
+    if (numericColumns.length > 0 && radarColumns.length === 0) {
+      setRadarColumns(numericColumns.slice(0, 6));
+    }
+  }, [numericColumns]);
+
+  useEffect(() => {
+    localStorage.setItem('mytechfun-radar-columns', JSON.stringify(radarColumns));
+  }, [radarColumns]);
+
+  useEffect(() => {
+    localStorage.setItem('mytechfun-radar-weights', JSON.stringify(radarWeights));
+  }, [radarWeights]);
+
+  useEffect(() => {
+    localStorage.setItem('mytechfun-radar-top-n', JSON.stringify(radarTopN));
+  }, [radarTopN]);
+
   useEffect(() => {
     localStorage.setItem('mytechfun-locked-columns', JSON.stringify(lockedColumns));
   }, [lockedColumns]);
@@ -228,6 +265,10 @@ const App: React.FC = () => {
 
     setLockedColumns([]);
     localStorage.removeItem('mytechfun-locked-columns');
+    setRadarColumns([]);
+    localStorage.removeItem('mytechfun-radar-columns');
+    localStorage.removeItem('mytechfun-radar-weights');
+    setRadarWeights({});
   };
 
   const handleChartAxisChange = (axis: 'xAxis' | 'yAxis', value: string) => {
@@ -392,6 +433,22 @@ const App: React.FC = () => {
                       </select>
                     </div>
 
+                    {chartConfig.type === 'radar' && (
+                      <div className="flex items-center space-x-2">
+                        <label className="text-sm font-medium text-gray-700">Show top:</label>
+                        <select
+                          value={radarTopN}
+                          onChange={e => setRadarTopN(Number(e.target.value))}
+                          className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          aria-label="Number of top filaments to display"
+                        >
+                          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
+                            <option key={n} value={n}>{n} filament{n !== 1 ? 's' : ''}</option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
                     {chartConfig.type === 'scatter' && (
                       <>
                         <div className="flex items-center space-x-2">
@@ -480,6 +537,9 @@ const App: React.FC = () => {
                       chartType={chartConfig.type}
                       xAxis={chartConfig.xAxis}
                       yAxis={chartConfig.yAxis}
+                      radarColumns={radarColumns}
+                      radarWeights={radarWeights}
+                      radarTopN={radarTopN}
                     />
                   </ErrorBoundary>
                 )}
