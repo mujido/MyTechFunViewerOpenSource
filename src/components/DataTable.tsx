@@ -173,15 +173,7 @@ const DataTable: React.FC<DataTableProps> = ({ data, lockedColumns }) => {
     }
   };
 
-  if (data.length === 0) {
-    return (
-      <div className="flex-1 flex items-center justify-center text-gray-500">
-        No data to display
-      </div>
-    );
-  }
-
-  const columns = Object.keys(data[0]);
+  const columns = useMemo(() => (data.length > 0 ? Object.keys(data[0]) : []), [data]);
 
   // Locked columns first (in original order), then unlocked columns (in original order)
   const displayColumns = useMemo(() => [
@@ -223,6 +215,15 @@ const DataTable: React.FC<DataTableProps> = ({ data, lockedColumns }) => {
       ...(colIndex === lockedCount - 1 && { boxShadow: '4px 0 6px -2px rgba(0,0,0,0.15)' }),
     };
   };
+
+  // Must come after all hooks so filtering down to zero rows doesn't change hook count
+  if (data.length === 0) {
+    return (
+      <div className="h-full flex items-center justify-center text-gray-500">
+        No matching rows
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col">
