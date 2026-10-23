@@ -200,7 +200,7 @@ const DataTable: React.FC<DataTableProps> = ({ data, lockedColumns }) => {
       position: 'sticky',
       left: stickyOffsets[colIndex] ?? 0,
       zIndex: 20,
-      background: 'linear-gradient(to right, #EFF6FF, #EEF2FF)',
+      background: 'linear-gradient(to right, var(--color-blue-50), var(--color-indigo-50))',
       ...(colIndex === lockedCount - 1 && { boxShadow: '4px 0 6px -2px rgba(0,0,0,0.15)' }),
     };
   };
@@ -211,7 +211,7 @@ const DataTable: React.FC<DataTableProps> = ({ data, lockedColumns }) => {
       position: 'sticky',
       left: stickyOffsets[colIndex] ?? 0,
       zIndex: 1,
-      backgroundColor: rowSelected ? '#EFF6FF' : 'white',
+      backgroundColor: rowSelected ? 'var(--color-blue-50)' : 'var(--color-surface)',
       ...(colIndex === lockedCount - 1 && { boxShadow: '4px 0 6px -2px rgba(0,0,0,0.15)' }),
     };
   };
@@ -263,7 +263,7 @@ const DataTable: React.FC<DataTableProps> = ({ data, lockedColumns }) => {
                   ))}
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200" role="rowgroup">
+              <tbody className="bg-surface divide-y divide-gray-200" role="rowgroup">
                 {sortedData.map((row, index) => (
                   <tr
                     key={index}

@@ -1,5 +1,13 @@
 @import 'tailwindcss';
 
+/* Dark mode is toggled by the `dark` class on <html> (see useTheme) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme static {
+  --color-surface: #ffffff;
+  --color-indigo-50: #eef2ff;
+}
+
 /*
   The default border color has changed to `currentcolor` in Tailwind CSS v4,
   so we've added these compatibility styles to make sure everything still
@@ -23,7 +31,7 @@
 }
 
 @utility btn-secondary {
-  @apply inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200;
+  @apply inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-surface hover:bg-gray-50 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200;
 }
 
 @utility btn-danger {
@@ -35,7 +43,7 @@
 }
 
 @utility card {
-  @apply bg-white rounded-lg shadow-xs border border-gray-200;
+  @apply bg-surface rounded-lg shadow-xs border border-gray-200;
 }
 
 @utility card-header {
@@ -269,18 +277,53 @@
   }
 }
 
-/* Dark mode support (optional) */
-@media (prefers-color-scheme: dark) {
-  .dark-mode {
-    --color-gray-50: #111827;
-    --color-gray-100: #1f2937;
-    --color-gray-200: #374151;
-    --color-gray-300: #4b5563;
-    --color-gray-400: #6b7280;
-    --color-gray-500: #9ca3af;
-    --color-gray-600: #d1d5db;
-    --color-gray-700: #e5e7eb;
-    --color-gray-800: #f3f4f6;
-    --color-gray-900: #f9fafb;
-  }
+/* Dark mode: remap the palette so existing utility classes adapt automatically */
+:root.dark {
+  color-scheme: dark;
+
+  --color-surface: #1f2937;
+
+  --color-gray-50: #111827;
+  --color-gray-100: #1f2937;
+  --color-gray-200: #374151;
+  --color-gray-300: #4b5563;
+  --color-gray-400: #6b7280;
+  --color-gray-500: #9ca3af;
+  --color-gray-600: #d1d5db;
+  --color-gray-700: #e5e7eb;
+  --color-gray-800: #f3f4f6;
+  --color-gray-900: #f9fafb;
+
+  --color-blue-50: #172554;
+  --color-blue-100: #1e3a8a;
+  --color-blue-200: #1e40af;
+  --color-blue-800: #bfdbfe;
+  --color-blue-900: #dbeafe;
+  --color-indigo-50: #1e1b4b;
+
+  --color-red-50: #450a0a;
+  --color-red-200: #7f1d1d;
+  --color-red-800: #fecaca;
+}
+
+/* Recharts hardcodes light-theme greys */
+:root.dark .recharts-cartesian-axis-tick-value,
+:root.dark .recharts-polar-angle-axis-tick-value,
+:root.dark .recharts-polar-radius-axis-tick-value,
+:root.dark .recharts-legend-item-text,
+:root.dark .recharts-label {
+  fill: var(--color-gray-500);
+}
+
+:root.dark .recharts-cartesian-grid line,
+:root.dark .recharts-polar-grid-concentric-polygon,
+:root.dark .recharts-polar-grid-angle line,
+:root.dark .recharts-cartesian-axis-line,
+:root.dark .recharts-cartesian-axis-tick-line {
+  stroke: var(--color-gray-300);
+}
+
+:root.dark .recharts-default-tooltip {
+  background-color: var(--color-surface) !important;
+  border-color: var(--color-gray-300) !important;
 }

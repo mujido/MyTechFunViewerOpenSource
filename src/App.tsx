@@ -6,9 +6,11 @@ import Charts from './components/Charts';
 import ErrorBoundary from './components/ErrorBoundary';
 import { TableSettingsDialog, RadarSettingsDialog } from './components/SettingsDialog';
 import { FilamentData, FilterState, ChartConfig } from './types';
+import { useTheme } from './hooks/useTheme';
 import { parseExcelFile, validateExcelData } from './utils/excel';
 
 const App: React.FC = () => {
+  const { theme, toggleTheme } = useTheme();
   const [data, setData] = useState<FilamentData[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -314,7 +316,7 @@ const App: React.FC = () => {
     <ErrorBoundary>
       <div className="h-screen flex flex-col bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-xs border-b px-6 py-4">
+      <header className="bg-surface shadow-xs border-b px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">MyTechFun Filament Viewer</h1>
@@ -326,14 +328,31 @@ const App: React.FC = () => {
             </p>
           </div>
 
+          <div className="flex items-center space-x-4">
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {theme === 'dark' ? (
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+              </svg>
+            )}
+          </button>
           {data.length > 0 && (
-            <div className="flex items-center space-x-4">
+            <>
               <div className="flex bg-gray-200 rounded-lg">
                 <button
                   onClick={() => setActiveTab('table')}
                   className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                     activeTab === 'table'
-                      ? 'bg-white text-blue-600 shadow-xs'
+                      ? 'bg-surface text-blue-600 shadow-xs dark:bg-gray-300 dark:text-white'
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
@@ -343,7 +362,7 @@ const App: React.FC = () => {
                   onClick={() => setActiveTab('charts')}
                   className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                     activeTab === 'charts'
-                      ? 'bg-white text-blue-600 shadow-xs'
+                      ? 'bg-surface text-blue-600 shadow-xs dark:bg-gray-300 dark:text-white'
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
@@ -362,8 +381,9 @@ const App: React.FC = () => {
                 Unload Data
               </button>
 
-            </div>
+            </>
           )}
+          </div>
         </div>
       </header>
 
@@ -436,7 +456,7 @@ const App: React.FC = () => {
             <div className="flex-1 flex flex-col min-w-0">
               {activeTab === 'charts' && (
                 /* Chart Controls */
-                <div className="bg-white border-b px-6 py-4">
+                <div className="bg-surface border-b px-6 py-4">
                   <div className="flex items-center space-x-6">
                     <div className="flex items-center space-x-2">
                       <label className="text-sm font-medium text-gray-700">Chart Type:</label>
@@ -518,7 +538,7 @@ const App: React.FC = () => {
               )}
 
               {activeTab === 'table' && (
-                <div className="bg-white border-b px-6 py-3 flex items-center justify-end">
+                <div className="bg-surface border-b px-6 py-3 flex items-center justify-end">
                   <button
                     onClick={() => setTableSettingsOpen(true)}
                     className="flex items-center space-x-1.5 px-3 py-1 text-sm font-medium text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
