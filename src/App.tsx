@@ -314,7 +314,7 @@ const App: React.FC = () => {
     <ErrorBoundary>
       <div className="h-screen flex flex-col bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b px-6 py-4">
+      <header className="bg-white shadow-xs border-b px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">MyTechFun Filament Viewer</h1>
@@ -333,7 +333,7 @@ const App: React.FC = () => {
                   onClick={() => setActiveTab('table')}
                   className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                     activeTab === 'table'
-                      ? 'bg-white text-blue-600 shadow-sm'
+                      ? 'bg-white text-blue-600 shadow-xs'
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
@@ -343,7 +343,7 @@ const App: React.FC = () => {
                   onClick={() => setActiveTab('charts')}
                   className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                     activeTab === 'charts'
-                      ? 'bg-white text-blue-600 shadow-sm'
+                      ? 'bg-white text-blue-600 shadow-xs'
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
@@ -443,7 +443,7 @@ const App: React.FC = () => {
                       <select
                         value={chartConfig.type}
                         onChange={(e) => handleChartTypeChange(e.target.value as any)}
-                        className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                         aria-label="Select chart type"
                       >
                         <option value="scatter">Scatter Plot</option>
@@ -458,7 +458,7 @@ const App: React.FC = () => {
                         <select
                           value={radarTopN}
                           onChange={e => setRadarTopN(Number(e.target.value))}
-                          className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                           aria-label="Number of top filaments to display"
                         >
                           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
@@ -489,7 +489,7 @@ const App: React.FC = () => {
                           <select
                             value={chartConfig.xAxis}
                             onChange={(e) => handleChartAxisChange('xAxis', e.target.value)}
-                            className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                             aria-label="Select X-axis variable"
                           >
                             {numericColumns.map(col => (
@@ -503,7 +503,7 @@ const App: React.FC = () => {
                           <select
                             value={chartConfig.yAxis}
                             onChange={(e) => handleChartAxisChange('yAxis', e.target.value)}
-                            className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                             aria-label="Select Y-axis variable"
                           >
                             {numericColumns.map(col => (
@@ -552,7 +552,7 @@ const App: React.FC = () => {
                         <p className="text-red-600 text-sm mb-4">There was an error displaying the data table.</p>
                         <button
                           onClick={() => window.location.reload()}
-                          className="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                          className="px-4 py-2 text-sm bg-red-600 text-white rounded-sm hover:bg-red-700 transition-colors"
                         >
                           Reload Page
                         </button>
@@ -574,7 +574,7 @@ const App: React.FC = () => {
                         <p className="text-red-600 text-sm mb-4">There was an error displaying the charts.</p>
                         <button
                           onClick={() => window.location.reload()}
-                          className="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                          className="px-4 py-2 text-sm bg-red-600 text-white rounded-sm hover:bg-red-700 transition-colors"
                         >
                           Reload Page
                         </button>

@@ -186,7 +186,7 @@ const Charts: React.FC<ChartsProps> = ({ data, chartType, xAxis, yAxis, radarCol
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="bg-white p-3 border rounded shadow-lg">
+        <div className="bg-white p-3 border rounded-sm shadow-lg">
           <p className="font-semibold">{data.name}</p>
           <p className="text-sm text-blue-600">{`${xAxis}: ${data.x}`}</p>
           <p className="text-sm text-green-600">{`${yAxis}: ${data.y}`}</p>
@@ -202,7 +202,7 @@ const Charts: React.FC<ChartsProps> = ({ data, chartType, xAxis, yAxis, radarCol
       const property = data.property;
 
       return (
-        <div className="bg-white p-3 border rounded shadow-lg max-w-xs">
+        <div className="bg-white p-3 border rounded-sm shadow-lg max-w-xs">
           <p className="font-semibold text-gray-900 mb-2">{property}</p>
           {payload.map((entry: any, index: number) => {
             const filamentIndex = entry.dataKey.replace('filament', '') - 1;

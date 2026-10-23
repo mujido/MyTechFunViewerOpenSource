@@ -75,13 +75,13 @@ const DualModeNumericInput: React.FC<{
             max={safeMax}
             step={safeStep}
             autoFocus
-            className="w-full px-2 py-1 text-sm border border-blue-500 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+            className="w-full px-2 py-1 text-sm border border-blue-500 rounded-sm focus:outline-hidden focus:ring-1 focus:ring-blue-500 bg-white"
           />
         ) : (
           <div className="space-y-2">
             <button
               onClick={handleTextClick}
-              className="w-full text-left px-2 py-1 text-sm border border-gray-300 rounded hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white cursor-text"
+              className="w-full text-left px-2 py-1 text-sm border border-gray-300 rounded-sm hover:border-gray-400 focus:outline-hidden focus:ring-1 focus:ring-blue-500 bg-white cursor-text"
             >
               {safeValue.toFixed(1)}
             </button>
@@ -214,7 +214,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
 
   if (isCollapsed) {
     return (
-      <div className="w-12 bg-white shadow-sm border-r">
+      <div className="w-12 bg-white shadow-xs border-r">
         <button
           onClick={onToggleCollapse}
           className="w-full h-12 flex items-center justify-center hover:bg-gray-50"
@@ -228,7 +228,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   }
 
   return (
-    <div className="w-80 bg-white shadow-sm border-r overflow-y-auto">
+    <div className="w-80 bg-white shadow-xs border-r overflow-y-auto">
       <div className="p-4 border-b">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Filters</h2>
@@ -241,7 +241,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
             </button>
             <button
               onClick={onToggleCollapse}
-              className="p-1 hover:bg-gray-100 rounded"
+              className="p-1 hover:bg-gray-100 rounded-sm"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -261,7 +261,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
             value={filters.searchText}
             onChange={(e) => onFiltersChange({ ...filters, searchText: e.target.value })}
             placeholder="Search filaments..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
           />
         </div>
 

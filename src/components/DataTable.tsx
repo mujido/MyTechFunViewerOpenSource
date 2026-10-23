@@ -257,7 +257,7 @@ const DataTable: React.FC<DataTableProps> = ({ data, lockedColumns }) => {
                     >
                       <div className="flex items-center justify-between min-w-0">
                         <span className="truncate mr-2" title={column}>{column}</span>
-                        <span className="flex-shrink-0">{getSortIcon(column)}</span>
+                        <span className="shrink-0">{getSortIcon(column)}</span>
                       </div>
                     </th>
                   ))}

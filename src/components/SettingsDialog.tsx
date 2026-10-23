@@ -12,7 +12,7 @@ const SearchInput: React.FC<{ value: string; onChange: (v: string) => void }> = 
       placeholder="Search columns…"
       value={value}
       onChange={e => onChange(e.target.value)}
-      className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent"
     />
   </div>
 );
@@ -135,14 +135,14 @@ export const TableSettingsDialog: React.FC<TableSettingsDialogProps> = ({
 const ColumnPinRow: React.FC<{ column: string; pinned: boolean; onToggle: () => void }> = ({ column, pinned, onToggle }) => (
   <div className={`flex items-center justify-between px-3 py-2 mx-2 rounded-lg mb-0.5 ${pinned ? 'bg-blue-50 border border-blue-100' : 'hover:bg-gray-50'}`}>
     <div className="flex items-center space-x-2 min-w-0">
-      <svg className={`w-4 h-4 flex-shrink-0 ${pinned ? 'text-blue-500' : 'text-gray-300'}`} fill={pinned ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+      <svg className={`w-4 h-4 shrink-0 ${pinned ? 'text-blue-500' : 'text-gray-300'}`} fill={pinned ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
       </svg>
       <span className={`text-sm truncate ${pinned ? 'text-blue-900 font-medium' : 'text-gray-700'}`}>{column}</span>
     </div>
     <button
       onClick={onToggle}
-      className={`ml-3 flex-shrink-0 text-xs font-medium px-2.5 py-1 rounded-md transition-colors ${pinned ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+      className={`ml-3 shrink-0 text-xs font-medium px-2.5 py-1 rounded-md transition-colors ${pinned ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
     >
       {pinned ? 'Unpin' : 'Pin'}
     </button>
@@ -238,7 +238,7 @@ export const RadarSettingsDialog: React.FC<RadarSettingsDialogProps> = ({
         <div className="flex items-center justify-between">
           <p className="text-sm text-gray-500">Choose columns and their relative weights for the radar chart.</p>
           {radarColumns.length > 0 && (
-            <span className="ml-3 flex-shrink-0 text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+            <span className="ml-3 shrink-0 text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
               {radarColumns.length} selected
             </span>
           )}
@@ -264,12 +264,12 @@ export const RadarSettingsDialog: React.FC<RadarSettingsDialogProps> = ({
                     type="checkbox"
                     checked={checked}
                     onChange={() => toggleColumn(column)}
-                    className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 flex-shrink-0"
+                    className="w-4 h-4 rounded-sm border-gray-300 text-blue-600 focus:ring-blue-500 shrink-0"
                   />
                   <span className={`text-sm truncate ${checked ? 'text-blue-900 font-medium' : 'text-gray-700'}`}>{column}</span>
                 </label>
                 {checked && (
-                  <div className="flex items-center space-x-2 ml-3 flex-shrink-0">
+                  <div className="flex items-center space-x-2 ml-3 shrink-0">
                     <input
                       type="range"
                       min={0.5}
